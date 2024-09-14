@@ -60,8 +60,7 @@ exports.loginUser =async (req, res, next) => {
         let token=await generateToken(checkEmail.id,checkEmail.isAdmin,checkEmail.role,checkEmail.tokenVersion);
         let data={
             ...checkEmail.dataValues,
-            token,
-            CLOUDINARY_CLOUD_NAME:process.env.CLOUDINARY_CLOUD_NAME
+            token
         }
         sendResponse({
             res,
