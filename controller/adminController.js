@@ -91,3 +91,86 @@ exports.getUserById=async(req, res, next) => {
         return next(new ErrorHandler(error.message,500));
     }
 }
+
+exports.deleteById=async(req,res,next)=>{
+    try{
+        // await Agent.findById({ _id: req.user._id })
+        const {userId}=req.query;
+        if(!userId){
+            return next(new ErrorHandler("Please provide userId",400));
+        }
+        const user=await User.findOne({where:{id:userId}});
+        if(!user){
+            return next(new ErrorHandler("User not found",404));
+        }
+        if (user.role == "Admin"&&!user.isAdmin) {
+            return next(new ErrorHandler("You are not authorized to delete this user", 401));
+        }        
+        user.isDeleted=true;
+        user.save();
+        sendResponse({
+            res,
+            message: "User Deleted Successfully",
+            data: [],
+          });
+    }catch(error){
+        console.log("error",error);
+        return next(new ErrorHandler(error.message,500));
+    }
+}
+
+exports.updateProfilePicture=async(req,res,next)=>{
+    try {
+        const {userId}=req.query;
+        if(!userId){
+            return next(new ErrorHandler("Please provide userId",400));
+        }
+        const user=await User.findOne({where:{id:userId}});
+        if(!user){
+            return next(new ErrorHandler("User not found",404));
+        }
+        user.profilePic=req.file.path;
+        await user.save();
+        sendResponse({
+            res,
+            message: "Profile Picture Updated Successfully",
+            data: user,
+          });
+    } catch (error) {
+        console.log("eror",error);
+        return next(new ErrorHandler(error.message,500));
+    }
+}
+exports.deleteProfilePicture = async (req, res, next) => {
+    try {
+        const { userId } = req.query;
+        if (!userId) {
+            return next(new ErrorHandler("Please provide userId", 400));
+        }
+
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        if (user.profilePic) {            
+            user.profilePic = `https://avatar.iran.liara.run/public/boy?username=${user.name}`;
+            // "https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png"||
+            await user.save();
+        }
+
+        sendResponse({
+            res,
+            message: "Profile Picture Deleted Successfully",
+            data:{
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                profilePic: user.profilePic
+            },
+        });
+    } catch (error) {
+        console.log("error", error);
+        return next(new ErrorHandler(error.message, 500));
+    }
+};

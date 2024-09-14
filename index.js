@@ -8,7 +8,6 @@ const cors=require("cors");
 const morgan=require("morgan");
 require("dotenv").config();
 const { sequelizeCon } = require('./config/databaseConfig');
-
 // const deleteAllUsers=require("./config/seeder")
 // const crypto = require('crypto');
 
