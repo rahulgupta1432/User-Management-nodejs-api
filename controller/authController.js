@@ -61,6 +61,7 @@ exports.loginUser =async (req, res, next) => {
         let data={
             ...checkEmail.dataValues,
             token,
+            CLOUDINARY_CLOUD_NAME:process.env.CLOUDINARY_CLOUD_NAME
         }
         sendResponse({
             res,
