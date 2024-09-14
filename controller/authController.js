@@ -82,3 +82,4 @@ exports.logoutUser = (req, res) => {
         return next(new ErrorHandler(error.message,500));
     }
 };
+
