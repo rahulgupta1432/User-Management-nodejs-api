@@ -6,14 +6,15 @@ const { encryptToken } = require('./aes256Token');
     // (jwt.sign({userId,randomness:Math.random(),expiresOn:Date.now()+1*24*60*60*1000,createdOn:Date.now(),isAdmin,role}
     // ,process.env.JWT_SECRET,{expiresIn:'1d'}));
     
-exports.generateToken = async (userId, isAdmin, role) => {
+exports.generateToken = async (userId, isAdmin, role,tokenVersion) => {
         const payload = {
             userId,
             randomness: Math.random(),
             expiresOn: Date.now() + 1 * 24 * 60 * 60 * 1000,
             createdOn: Date.now(),
             isAdmin,
-            role
+            role,
+            tokenVersion: tokenVersion
         };
     
         const secret = process.env.JWT_SECRET;

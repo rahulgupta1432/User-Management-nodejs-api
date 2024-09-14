@@ -36,10 +36,19 @@ User.init({
         type:DataTypes.STRING,
         enum:['Admin','User']
     },
+    profilePic:{
+        type:DataTypes.STRING,
+        allowNull:true,
+        defaultValue:"https://avatar.iran.liara.run/public"
+    },
     isDeleted:{
         type:DataTypes.BOOLEAN,
         defaultValue:false
-    }
+    },
+    tokenVersion: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    },
 },{
     tableName:"users",
     modelName:"User",

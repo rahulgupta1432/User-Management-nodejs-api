@@ -23,7 +23,7 @@ exports.registerUser = async (req, res, next) => {
         }
         let user;
         user= await User.create({ name, email, password,isAdmin,mobile,role });
-        const token=await generateToken(user.id,user.isAdmin,role);
+        const token=await generateToken(user.id,user.isAdmin,role,user.tokenVersion);
         user.password=undefined;
         const data={...user.dataValues,token}
         sendResponse({
@@ -54,7 +54,10 @@ exports.loginUser =async (req, res, next) => {
             return next(new ErrorHandler("Invalid Password",400));
         }
         checkEmail.password=undefined;
-        let token=await generateToken(checkEmail.id,checkEmail.isAdmin);
+        if(checkEmail.isDeleted){
+            return next(new ErrorHandler("User Deleted Please Contact to the Admin",404));
+        }
+        let token=await generateToken(checkEmail.id,checkEmail.isAdmin,checkEmail.role,checkEmail.tokenVersion);
         let data={
             ...checkEmail.dataValues,
             token,
@@ -71,9 +74,21 @@ exports.loginUser =async (req, res, next) => {
     }
 };
 
-exports.logoutUser = (req, res) => {
+exports.logoutUser = async(req, res,next) => {
     try{
-        res.clearCookie("token");
+        // res.clearCookie("x-authorization");
+        const {userId}=req.query;
+        const user=await User.findByPk(userId);
+        if(!user){
+            return next(new ErrorHandler("User Not Found",404));
+        }
+        // const requestId = req.user.id;
+        if (userId.toString() !== req.user.id.toString()) {
+            return next(new ErrorHandler("Not Authorized Token And User Id Doesn't Match it.",401));
+        }
+        user.tokenVersion=user.tokenVersion+1;
+        await user.save();
+
         sendResponse({
             res,
             message: "User Logout Successfully",
@@ -83,3 +98,12 @@ exports.logoutUser = (req, res) => {
     }
 };
 
+
+async function setAll(){
+    const all=await User.findAll()
+    for(let i=0;i<all.length;i++){
+        all[i].profilePic="https://avatar.iran.liara.run/public";
+        all[i].save();
+        console.log(all[i].dataValues)
+    }
+}

@@ -12,6 +12,6 @@ const deleteAllUsers = async () => {
     }
 };
 
-deleteAllUsers();
+// deleteAllUsers();
 
 module.exports = deleteAllUsers;
