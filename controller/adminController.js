@@ -66,11 +66,9 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.getUserById=async(req, res, next) => {
     try{
-        const {userId}=req.query;
-        if(!userId){
-            return next(new ErrorHandler("Please provide userId",400));
-        }
-        const user=await User.findOne({where:{id:userId}});
+        const userId = req.user.id;
+        console.log("--------", userId, "-----------"); // Log userId to verify
+        const user = await User.findOne({ where: { id: userId } });
         if(!user){
             return next(new ErrorHandler("User not found",404));
         }
