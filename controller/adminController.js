@@ -169,39 +169,50 @@ exports.deleteProfilePicture = async (req, res, next) => {
 };
 
 
-
-exports.updateProfileInfo=async(req,res,next)=>{
+exports.updateProfileInfo = async (req, res, next) => {
     try {
-        const {userId}=req.query;
-        const {name,mobile,email,password}=req.body;
-        if(!userId){
-            return next(new ErrorHandler("Please provide userId",400));
+        const { userId } = req.query;
+        const { name, mobile, email, password } = req.body;
+
+        if (!userId) {
+            return next(new ErrorHandler("Please provide userId", 400));
         }
-        const user=await User.findOne({where:{id:userId}});
-        if(!user){
-            return next(new ErrorHandler("User not found",404));
+
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
         }
-        user.name=name;
-        user.mobile=mobile;
-        user.email=email;
-        if(password){
-            const comparePassword=await bcrypt.compare(password,user.password);
-        if(!comparePassword){
-            return next(new ErrorHandler("Invalid Password",400));
+
+        // Update profile information
+        user.name = name || user.name;
+        user.mobile = mobile || user.mobile;
+        user.email = email || user.email;
+
+        if (password) {
+            const comparePassword = await bcrypt.compare(password, user.password);
+            if (!comparePassword) {
+                return next(new ErrorHandler("Invalid Password", 400));
+            }
+            user.password = await bcrypt.hash(password, 10);
         }
-        user.password=await bcrypt.hash(password,10);
+
+        // Update profile picture if present in request
+        if (req.file) {
+            user.profilePic = req.file.path;
         }
+
         await user.save();
-        user.password=undefined;
-        user.role=undefined;
-        user.isAdmin=undefined;
+        user.password = undefined;
+        user.role = undefined;
+        user.isAdmin = undefined;
+
         sendResponse({
             res,
-            message: "Profile Info Updated Successfully",
+            message: "Profile Updated Successfully",
             data: user,
-          });
+        });
     } catch (error) {
-        console.log("eror",error);
-        return next(new ErrorHandler(error.message,500));
+        console.log("error", error);
+        return next(new ErrorHandler(error.message, 500));
     }
 }
