@@ -8,7 +8,7 @@ const bcrypt=require("bcrypt");
 exports.registerUser = async (req, res, next) => {
     try {
         const { name,mobile, email, password,isAdmin,role } = req.body;
-        if(!name||!email||!password||!isAdmin||!mobile){
+        if(!name||!email||!password||!mobile){
             return next(new ErrorHandler("All Field Required",400));
         }
         const valid=await registerUserValidation(req.body);
