@@ -5,8 +5,6 @@ const registerUserValidation=async(user)=>{
         mobile:joi.string().required(),
         email:joi.string().email().required(),
         password:joi.string().required(),
-        isAdmin:joi.boolean(),
-        role:joi.string().required()
     });
     
     let valid = await schema
