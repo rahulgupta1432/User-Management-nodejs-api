@@ -3,6 +3,7 @@ const User=require("../model/UserModel");
 const ErrorHandler = require('../utility/ErrorHandler');
 const sendResponse = require('../utility/sendResponse');
 const { Sequelize, Op } = require("sequelize");
+const bcrypt=require("bcrypt");
 exports.getAllUsers = async (req, res, next) => {
     try {
         const page = req.query.page || 1;
@@ -67,7 +68,6 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getUserById=async(req, res, next) => {
     try{
         const userId = req.user.id;
-        console.log("--------", userId, "-----------"); // Log userId to verify
         const user = await User.findOne({ where: { id: userId } });
         if(!user){
             return next(new ErrorHandler("User not found",404));
@@ -167,3 +167,41 @@ exports.deleteProfilePicture = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+
+
+exports.updateProfileInfo=async(req,res,next)=>{
+    try {
+        const {userId}=req.query;
+        const {name,mobile,email,password}=req.body;
+        if(!userId){
+            return next(new ErrorHandler("Please provide userId",400));
+        }
+        const user=await User.findOne({where:{id:userId}});
+        if(!user){
+            return next(new ErrorHandler("User not found",404));
+        }
+        user.name=name;
+        user.mobile=mobile;
+        user.email=email;
+        if(password){
+            const comparePassword=await bcrypt.compare(password,user.password);
+        if(!comparePassword){
+            return next(new ErrorHandler("Invalid Password",400));
+        }
+        user.password=await bcrypt.hash(password,10);
+        }
+        await user.save();
+        user.password=undefined;
+        user.role=undefined;
+        user.isAdmin=undefined;
+        sendResponse({
+            res,
+            message: "Profile Info Updated Successfully",
+            data: user,
+          });
+    } catch (error) {
+        console.log("eror",error);
+        return next(new ErrorHandler(error.message,500));
+    }
+}
