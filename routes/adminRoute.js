@@ -13,5 +13,5 @@ router.get("/delete/profile",Auth,adminController.deleteProfilePicture);
 
 router.get("/fetch/profile",Auth,adminController.getUserById)
 
-router.put("/update/profile-info",Auth,adminController.updateProfileInfo);
+router.put("/update/profile-info",upload.single("profilePicture"),adminController.updateProfileInfo);
 module.exports = router;
