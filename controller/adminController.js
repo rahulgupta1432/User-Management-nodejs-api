@@ -75,17 +75,12 @@ exports.getUserById=async(req, res, next) => {
             return next(new ErrorHandler("User not found",404));
         }
         user.password=undefined;
-        const countUserTask=await Task.findAll({where:{userId:user.id}});
-        const data={
-            ...user.dataValues,
-            taskCount:countUserTask.length,
-            completedTaskCount:countUserTask.filter(task=>task.completed===true).length,
-            incompleteTaskCount:countUserTask.filter(task=>task.completed===false).length
-        }
+        user.role=undefined;
+        user.isAdmin=undefined;
         sendResponse({
             res,
             message: "User Fetched Successfully",
-            data: data,
+            data: user,
           });
     }catch(error){
         return next(new ErrorHandler(error.message,500));
