@@ -34,7 +34,9 @@ User.init({
     },
     role:{
         type:DataTypes.STRING,
+        defaultValue:"User",
         enum:['Admin','User']
+        
     },
     profilePic:{
         type:DataTypes.STRING,
