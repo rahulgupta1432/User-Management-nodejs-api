@@ -172,7 +172,7 @@ exports.deleteProfilePicture = async (req, res, next) => {
 exports.updateProfileInfo = async (req, res, next) => {
     try {
         const { userId } = req.query;
-        const { name, mobile, email, password } = req.body;
+        const { name, mobile, email, password ,role} = req.body;
 
         if (!userId) {
             return next(new ErrorHandler("Please provide userId", 400));
@@ -187,6 +187,7 @@ exports.updateProfileInfo = async (req, res, next) => {
         user.name = name || user.name;
         user.mobile = mobile || user.mobile;
         user.email = email || user.email;
+        user.role=role||user.role;
 
         if (password) {
             const comparePassword = await bcrypt.compare(password, user.password);
@@ -200,12 +201,18 @@ exports.updateProfileInfo = async (req, res, next) => {
         if (req.file) {
             user.profilePic = req.file.path;
         }
+        if (role) {
+            if (role === 'Admin') {
+                user.isAdmin = true;
+            } else if (role === 'User') {
+                user.isAdmin = false;
+            }
+        }
 
         await user.save();
         user.password = undefined;
-        user.role = undefined;
-        user.isAdmin = undefined;
-
+            // user.role = user.role;
+            // user.isAdmin = user.isAdmin;
         sendResponse({
             res,
             message: "Profile Updated Successfully",
